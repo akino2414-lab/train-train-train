@@ -350,18 +350,29 @@ export const MeitetsuStationLCDDisplay: React.FC<MeitetsuStationLCDDisplayProps>
                       )}
                     </div>
 
-                    {/* 右側：発車時刻（太角デジタル数字） ＆ 両数 */}
+                    {/* 右側：発車時刻（太角デジタル数字） ＆ 遅れ表示 ＆ 両数 */}
                     <div className="flex items-center space-x-2 sm:space-x-3 text-right">
-                      <div
-                        className={`font-extrabold font-mono text-xl sm:text-2xl tracking-tight ${
-                          isApproaching
-                            ? 'text-amber-300 animate-pulse drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]'
-                            : isBoarding
-                            ? 'text-emerald-300 animate-pulse drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]'
-                            : 'text-white'
-                        }`}
-                      >
-                        {train.scheduledTime}
+                      <div className="flex flex-col items-end">
+                        <div
+                          className={`font-extrabold font-mono text-xl sm:text-2xl tracking-tight leading-none ${
+                            isApproaching
+                              ? 'text-amber-300 animate-pulse drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]'
+                              : isBoarding
+                              ? 'text-emerald-300 animate-pulse drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]'
+                              : train.delayMinutes > 0
+                              ? 'text-rose-300'
+                              : 'text-white'
+                          }`}
+                        >
+                          {train.scheduledTime}
+                        </div>
+                        {train.delayMinutes > 0 && (
+                          <div className="mt-0.5 flex items-center space-x-0.5">
+                            <span className="inline-flex items-center bg-red-600 border border-red-300 text-white text-[9px] sm:text-[10px] font-black px-1.5 py-0.2 rounded animate-pulse shadow-[0_0_6px_rgba(239,68,68,0.9)]">
+                              約{train.delayMinutes}分遅れ
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-col items-center justify-center bg-zinc-900 border border-zinc-700 px-1.5 py-0.5 rounded min-w-[38px]">
                         <span className="text-white font-bold text-xs sm:text-sm leading-none">

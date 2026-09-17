@@ -268,63 +268,143 @@ export const QuickTrainEditor: React.FC<QuickTrainEditorProps> = ({
                   </div>
                 </div>
 
-                {/* 4. Quick Status & Delay Toggle (接近中・遅延のクイック切替) */}
-                <div className="flex items-center space-x-1 pt-1 border-t border-zinc-850">
-                  <span className="text-[11px] text-zinc-400 w-12">運行演出:</span>
-                  <div className="grid grid-cols-3 gap-1 flex-1">
-                    {/* 定刻 */}
-                    <button
-                      onClick={() =>
-                        onQuickUpdateTrain({
-                          ...train,
-                          status: 'on_time',
-                          delayMinutes: 0,
-                        })
-                      }
-                      className={`py-0.5 text-[10px] rounded border font-semibold ${
-                        train.status === 'on_time' && train.delayMinutes === 0
-                          ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
-                          : 'bg-zinc-900 text-zinc-400 border-zinc-800'
-                      }`}
-                    >
-                      定刻
-                    </button>
+                {/* 4. Quick Status & Delay Programming (運行状態 & 遅延時間プログラミング) */}
+                <div className="pt-2 border-t border-zinc-800 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-amber-300">運行演出・状態:</span>
+                    <div className="flex items-center space-x-1">
+                      {/* 定刻 */}
+                      <button
+                        onClick={() =>
+                          onQuickUpdateTrain({
+                            ...train,
+                            status: 'on_time',
+                            delayMinutes: 0,
+                          })
+                        }
+                        className={`px-2 py-0.5 text-[10px] rounded border font-semibold transition ${
+                          train.status === 'on_time' && train.delayMinutes === 0
+                            ? 'bg-emerald-950 text-emerald-300 border-emerald-600 font-bold'
+                            : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+                        }`}
+                      >
+                        定刻
+                      </button>
 
-                    {/* 接近中 (点滅) */}
-                    <button
-                      onClick={() =>
-                        onQuickUpdateTrain({
-                          ...train,
-                          status: train.status === 'approaching' ? 'on_time' : 'approaching',
-                        })
-                      }
-                      className={`py-0.5 text-[10px] rounded border font-semibold flex items-center justify-center space-x-0.5 ${
-                        train.status === 'approaching'
-                          ? 'bg-amber-400 text-black border-amber-300 font-black animate-pulse'
-                          : 'bg-zinc-900 text-amber-400 border-zinc-800'
-                      }`}
-                    >
-                      <span>接近中</span>
-                    </button>
+                      {/* 接近中 (点滅) */}
+                      <button
+                        onClick={() =>
+                          onQuickUpdateTrain({
+                            ...train,
+                            status: train.status === 'approaching' ? 'on_time' : 'approaching',
+                          })
+                        }
+                        className={`px-2 py-0.5 text-[10px] rounded border font-semibold flex items-center space-x-0.5 transition ${
+                          train.status === 'approaching'
+                            ? 'bg-amber-400 text-black border-amber-300 font-black animate-pulse shadow'
+                            : 'bg-zinc-900 text-amber-400 border-zinc-800 hover:border-amber-600'
+                        }`}
+                      >
+                        <span>接近中</span>
+                      </button>
 
-                    {/* 遅延 */}
-                    <button
-                      onClick={() => {
-                        const newDelay = train.delayMinutes > 0 ? 0 : 5;
-                        onQuickUpdateTrain({
-                          ...train,
-                          delayMinutes: newDelay,
-                          status: newDelay > 0 ? 'delayed' : 'on_time',
-                        });
-                      }}
-                      className={`py-0.5 text-[10px] rounded border font-semibold ${
-                        train.delayMinutes > 0
-                          ? 'bg-rose-950 text-rose-300 border-rose-600 font-black animate-pulse'
-                          : 'bg-zinc-900 text-rose-400 border-zinc-800'
-                      }`}
-                    >
-                      {train.delayMinutes > 0 ? `遅れ${train.delayMinutes}分` : '遅延+5分'}
-                    </button>
+                      {/* ご乗車中 */}
+                      <button
+                        onClick={() =>
+                          onQuickUpdateTrain({
+                            ...train,
+                            status: train.status === 'boarding' ? 'on_time' : 'boarding',
+                          })
+                        }
+                        className={`px-2 py-0.5 text-[10px] rounded border font-semibold flex items-center space-x-0.5 transition ${
+                          train.status === 'boarding'
+                            ? 'bg-blue-600 text-white border-blue-400 font-black shadow'
+                            : 'bg-zinc-900 text-blue-400 border-zinc-800 hover:border-blue-600'
+                        }`}
+                      >
+                        <span>乗車中</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 遅れ時間のプログラミングバー */}
+                  <div className="bg-[#040711] p-2 rounded-lg border border-red-950/70 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-rose-300 flex items-center space-x-1">
+                        <span>⚠️ 遅れの時間を指定:</span>
+                      </span>
+                      {train.delayMinutes > 0 ? (
+                        <span className="text-[10px] font-mono font-bold text-rose-400 animate-pulse">
+                          +{train.delayMinutes}分遅延
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-zinc-500 font-mono">遅延なし</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-1.5">
+                      <div className="flex items-center bg-zinc-900 border border-zinc-750 rounded px-1.5 py-0.5 w-20">
+                        <input
+                          type="number"
+                          min="0"
+                          max="180"
+                          value={train.delayMinutes || 0}
+                          onChange={(e) => {
+                            const val = Math.max(0, Math.min(180, Number(e.target.value) || 0));
+                            onQuickUpdateTrain({
+                              ...train,
+                              delayMinutes: val,
+                              status: val > 0 ? 'delayed' : 'on_time',
+                            });
+                          }}
+                          className="w-10 bg-transparent text-white font-mono font-bold text-xs focus:outline-none text-right pr-1"
+                        />
+                        <span className="text-[10px] text-zinc-400">分</span>
+                      </div>
+
+                      {/* クイック増減ボタン */}
+                      <div className="flex items-center space-x-1 flex-1">
+                        {[
+                          { label: '+3分', add: 3 },
+                          { label: '+5分', add: 5 },
+                          { label: '+10分', add: 10 },
+                          { label: '+15分', add: 15 },
+                        ].map((btn) => (
+                          <button
+                            key={btn.label}
+                            type="button"
+                            onClick={() => {
+                              const newDelay = (train.delayMinutes || 0) + btn.add;
+                              onQuickUpdateTrain({
+                                ...train,
+                                delayMinutes: Math.min(180, newDelay),
+                                status: 'delayed',
+                              });
+                            }}
+                            className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-900 hover:bg-rose-950 text-rose-300 hover:text-white border border-zinc-700 hover:border-rose-600 transition flex-1 text-center"
+                          >
+                            {btn.label}
+                          </button>
+                        ))}
+
+                        {train.delayMinutes > 0 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onQuickUpdateTrain({
+                                ...train,
+                                delayMinutes: 0,
+                                status: 'on_time',
+                              })
+                            }
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-600 transition"
+                            title="遅延解消（定刻戻し）"
+                          >
+                            解消
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

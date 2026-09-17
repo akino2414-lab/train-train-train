@@ -1176,12 +1176,22 @@ export const TrainEditModal: React.FC<TrainEditModalProps> = ({
             )}
           </div>
 
-          {/* 8. 運行状況・接近点滅・遅延設定 */}
-          <div className="space-y-3 bg-[#13111f] p-3 rounded-lg border border-amber-500/30">
-            <label className="text-xs font-bold text-amber-300 flex items-center justify-between">
-              <span>⑩ 運行状態 & 演出アニメーション（接近中・遅延）</span>
-              <span className="text-[11px] text-zinc-400">LCD表示器にリアルタイム反映</span>
-            </label>
+          {/* 8. 運行状況・接近点滅・遅延設定（プログラミング機能完備） */}
+          <div className="space-y-3 bg-[#13111f] p-3.5 rounded-lg border border-amber-500/40 shadow-inner">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-amber-300 flex items-center space-x-1.5">
+                <span>⏱️ 運行状態 & 遅延時間プログラミング</span>
+              </label>
+              <span className="text-[11px] font-mono text-zinc-400">
+                {delayMinutes > 0 ? (
+                  <span className="text-rose-400 font-bold bg-rose-950/80 px-2 py-0.5 rounded border border-rose-700 animate-pulse">
+                    現在: {delayMinutes}分遅延
+                  </span>
+                ) : (
+                  <span className="text-emerald-400 font-bold">定刻運行中</span>
+                )}
+              </span>
+            </div>
 
             {/* 状態選択ボタン */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1197,7 +1207,7 @@ export const TrainEditModal: React.FC<TrainEditModalProps> = ({
                     : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:text-white'
                 }`}
               >
-                <span>定刻 (通常)</span>
+                <span>🟢 定刻 (通常)</span>
               </button>
 
               <button
@@ -1238,6 +1248,136 @@ export const TrainEditModal: React.FC<TrainEditModalProps> = ({
               >
                 <span>🔴 遅れ表示</span>
               </button>
+            </div>
+
+            {/* 遅延時間の本格プログラミング入力ブロック */}
+            <div className="pt-2 border-t border-zinc-800 space-y-2 bg-black/40 p-3 rounded-lg border border-red-950/60">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-bold text-red-300 flex items-center space-x-1">
+                  <span>⚠️ 遅延時間の数値プログラミング (分単位)</span>
+                </span>
+                <span className="text-[10px] text-zinc-400">
+                  発車標に「約〇分遅れ」としてリアルタイム反映
+                </span>
+              </div>
+
+              {/* 直接入力と微調整ボタン */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 focus-within:border-red-500 flex-1">
+                  <span className="text-xs font-bold text-zinc-400 mr-2">遅れ時間:</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="180"
+                    value={delayMinutes}
+                    onChange={(e) => {
+                      const val = Math.max(0, Math.min(180, Number(e.target.value) || 0));
+                      setDelayMinutes(val);
+                      if (val > 0) setStatus('delayed');
+                      else if (status === 'delayed') setStatus('on_time');
+                    }}
+                    className="w-20 bg-transparent text-white font-mono font-black text-lg focus:outline-none"
+                  />
+                  <span className="text-xs font-bold text-zinc-400">分</span>
+                </div>
+
+                {/* 微調整ボタン */}
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.max(0, delayMinutes - 5);
+                      setDelayMinutes(next);
+                      if (next === 0 && status === 'delayed') setStatus('on_time');
+                    }}
+                    className="px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-xs font-mono font-bold text-zinc-300 border border-zinc-700"
+                    title="-5分"
+                  >
+                    -5分
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.max(0, delayMinutes - 1);
+                      setDelayMinutes(next);
+                      if (next === 0 && status === 'delayed') setStatus('on_time');
+                    }}
+                    className="px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-xs font-mono font-bold text-zinc-300 border border-zinc-700"
+                    title="-1分"
+                  >
+                    -1分
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.min(180, delayMinutes + 1);
+                      setDelayMinutes(next);
+                      setStatus('delayed');
+                    }}
+                    className="px-2 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-xs font-mono font-bold text-zinc-300 border border-zinc-700"
+                    title="+1分"
+                  >
+                    +1分
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.min(180, delayMinutes + 5);
+                      setDelayMinutes(next);
+                      setStatus('delayed');
+                    }}
+                    className="px-2 py-1.5 rounded bg-rose-900/60 hover:bg-rose-900 text-xs font-mono font-bold text-rose-200 border border-rose-700"
+                    title="+5分"
+                  >
+                    +5分
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = Math.min(180, delayMinutes + 10);
+                      setDelayMinutes(next);
+                      setStatus('delayed');
+                    }}
+                    className="px-2 py-1.5 rounded bg-rose-900/60 hover:bg-rose-900 text-xs font-mono font-bold text-rose-200 border border-rose-700"
+                    title="+10分"
+                  >
+                    +10分
+                  </button>
+                </div>
+              </div>
+
+              {/* ワンタップ 遅延プリセットボタン */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] text-zinc-400 font-bold mr-1">ワンタップ設定:</span>
+                {[
+                  { m: 0, label: '定刻 (0分)', color: 'bg-emerald-950 text-emerald-300 border-emerald-700' },
+                  { m: 3, label: '3分遅れ', color: 'bg-zinc-900 text-zinc-300 border-zinc-700' },
+                  { m: 5, label: '5分遅れ', color: 'bg-zinc-900 text-zinc-300 border-zinc-700' },
+                  { m: 10, label: '10分遅れ', color: 'bg-zinc-900 text-zinc-300 border-zinc-700' },
+                  { m: 15, label: '15分遅れ', color: 'bg-amber-950 text-amber-300 border-amber-700' },
+                  { m: 20, label: '20分遅れ', color: 'bg-amber-950 text-amber-300 border-amber-700' },
+                  { m: 30, label: '30分遅れ', color: 'bg-red-950 text-red-300 border-red-700' },
+                  { m: 45, label: '45分遅れ', color: 'bg-red-950 text-red-300 border-red-700' },
+                  { m: 60, label: '60分遅れ', color: 'bg-red-950 text-red-300 border-red-700' },
+                ].map((item) => (
+                  <button
+                    key={item.m}
+                    type="button"
+                    onClick={() => {
+                      setDelayMinutes(item.m);
+                      if (item.m > 0) setStatus('delayed');
+                      else if (status === 'delayed') setStatus('on_time');
+                    }}
+                    className={`px-2 py-1 rounded text-xs font-mono font-bold border transition ${
+                      delayMinutes === item.m
+                        ? 'bg-red-600 text-white border-red-400 shadow ring-2 ring-red-400/50 scale-105'
+                        : `${item.color} hover:border-zinc-500`
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

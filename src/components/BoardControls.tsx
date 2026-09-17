@@ -34,6 +34,7 @@ interface BoardControlsProps {
   onTriggerApproach: () => void;
   onTriggerDeparture: () => void;
   onToggleDelay: () => void;
+  onProgramDelay?: (minutes: number, target: 'first' | 'all') => void;
   onResetSchedule: () => void;
   onOpenAddTrain: () => void;
 }
@@ -57,9 +58,12 @@ export const BoardControls: React.FC<BoardControlsProps> = ({
   onTriggerApproach,
   onTriggerDeparture,
   onToggleDelay,
+  onProgramDelay,
   onResetSchedule,
   onOpenAddTrain,
 }) => {
+  const [delayInputMinutes, setDelayInputMinutes] = React.useState<number>(10);
+  const [delayTarget, setDelayTarget] = React.useState<'first' | 'all'>('first');
   return (
     <div
       id="station-controls-panel"
@@ -313,47 +317,147 @@ export const BoardControls: React.FC<BoardControlsProps> = ({
         </div>
       </div>
 
-      {/* 4. 駅シミュレーション・手動演出アクションバー */}
-      <div className="bg-[#070b14] p-3 sm:p-4 rounded-xl border border-zinc-800 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center space-x-2">
-          <span className="text-xs font-bold text-zinc-400">手動演出シミュレーション:</span>
+      {/* 4. 駅シミュレーション・手動演出アクションバー ＆ 遅延時間プログラミング */}
+      <div className="bg-[#070b14] p-3 sm:p-4 rounded-xl border border-zinc-800 flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-bold text-zinc-400">手動演出シミュレーション:</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 接近チャイム */}
+            <button
+              onClick={onTriggerApproach}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 flex items-center space-x-1 transition"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>接近放送・点滅</span>
+            </button>
+
+            {/* 発車メロディ */}
+            <button
+              onClick={onTriggerDeparture}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black border border-emerald-500/40 flex items-center space-x-1 transition"
+            >
+              <Play className="w-3.5 h-3.5" />
+              <span>発車メロディ・出発</span>
+            </button>
+
+            {/* 初期ダイヤリセット */}
+            <button
+              onClick={onResetSchedule}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-750 text-zinc-400 hover:text-white border border-zinc-700 flex items-center space-x-1 transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>ダイヤリセット</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* 接近チャイム */}
-          <button
-            onClick={onTriggerApproach}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/40 flex items-center space-x-1 transition"
-          >
-            <Bell className="w-3.5 h-3.5" />
-            <span>接近放送・点滅</span>
-          </button>
+        {/* 5. 遅れ時間プログラム（何分遅れでも即座に設定・シミュレーション可能） */}
+        <div className="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span className="text-xs font-bold text-rose-300">遅れ時間のプログラム設定:</span>
+          </div>
 
-          {/* 発車メロディ */}
-          <button
-            onClick={onTriggerDeparture}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black border border-emerald-500/40 flex items-center space-x-1 transition"
-          >
-            <Play className="w-3.5 h-3.5" />
-            <span>発車メロディ・出発</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 適用対象セレクタ */}
+            <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded-lg p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setDelayTarget('first')}
+                className={`px-2 py-1 rounded font-bold transition ${
+                  delayTarget === 'first'
+                    ? 'bg-zinc-700 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                先頭列車のみ
+              </button>
+              <button
+                type="button"
+                onClick={() => setDelayTarget('all')}
+                className={`px-2 py-1 rounded font-bold transition ${
+                  delayTarget === 'all'
+                    ? 'bg-zinc-700 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                全列車一括
+              </button>
+            </div>
 
-          {/* 遅延トグル */}
-          <button
-            onClick={onToggleDelay}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/40 flex items-center space-x-1 transition"
-          >
-            <span>遅延 (+5分)</span>
-          </button>
+            {/* 分数直接入力 */}
+            <div className="flex items-center space-x-1 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1">
+              <input
+                type="number"
+                min="0"
+                max="180"
+                value={delayInputMinutes}
+                onChange={(e) => setDelayInputMinutes(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-12 bg-black border border-zinc-600 rounded px-1.5 py-0.5 text-xs font-mono font-bold text-rose-300 text-right focus:outline-none focus:border-rose-400"
+              />
+              <span className="text-xs text-zinc-300 font-bold">分遅れ</span>
+            </div>
 
-          {/* 初期ダイヤリセット */}
-          <button
-            onClick={onResetSchedule}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-750 text-zinc-400 hover:text-white border border-zinc-700 flex items-center space-x-1 transition"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>ダイヤリセット</span>
-          </button>
+            {/* 増減ボタン */}
+            <div className="flex items-center space-x-1">
+              <button
+                type="button"
+                onClick={() => setDelayInputMinutes((prev) => Math.max(0, prev - 5))}
+                className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-mono font-bold border border-zinc-700 transition"
+                title="5分減らす"
+              >
+                -5分
+              </button>
+              <button
+                type="button"
+                onClick={() => setDelayInputMinutes((prev) => Math.min(180, prev + 5))}
+                className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-mono font-bold border border-zinc-700 transition"
+                title="5分増やす"
+              >
+                +5分
+              </button>
+            </div>
+
+            {/* プリセットボタン */}
+            {[0, 3, 5, 10, 15, 30].map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => {
+                  setDelayInputMinutes(preset);
+                  if (onProgramDelay) {
+                    onProgramDelay(preset, delayTarget);
+                  }
+                }}
+                className={`px-2 py-1 rounded text-xs font-mono font-bold transition border ${
+                  preset === 0
+                    ? 'bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 border-emerald-800'
+                    : 'bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 border-rose-800/80'
+                }`}
+                title={preset === 0 ? '定刻復旧（遅れ0分）' : `${preset}分遅延`}
+              >
+                {preset === 0 ? '定刻(0分)' : `+${preset}分`}
+              </button>
+            ))}
+
+            {/* 反映実行ボタン */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onProgramDelay) {
+                  onProgramDelay(delayInputMinutes, delayTarget);
+                } else {
+                  onToggleDelay();
+                }
+              }}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_12px_rgba(225,29,72,0.5)] flex items-center space-x-1.5 transition active:scale-95"
+            >
+              <span>{delayInputMinutes === 0 ? '定刻に復旧' : `${delayInputMinutes}分遅延を適用`}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -33,8 +33,13 @@ export function getBottomNoticeInfo(
 
   if (firstTrain && firstTrain.scheduledTime) {
     const [h, m] = firstTrain.scheduledTime.split(':').map(Number);
+    const delay = firstTrain.delayMinutes || 0;
+    const totalMinutes = h * 60 + m + delay;
+    const adjustedH = Math.floor(totalMinutes / 60) % 24;
+    const adjustedM = totalMinutes % 60;
+
     const trainDate = new Date(currentTime);
-    trainDate.setHours(h, m, 0, 0);
+    trainDate.setHours(adjustedH, adjustedM, 0, 0);
 
     let diffMs = trainDate.getTime() - currentTime.getTime();
     // 日跨ぎ調整
@@ -49,16 +54,18 @@ export function getBottomNoticeInfo(
     const destEn = firstTrain.destination?.en || 'Nagoya';
     const cars = firstTrain.cars || 6;
     const timeStr = firstTrain.scheduledTime;
+    const delayNoteJa = delay > 0 ? `【約${delay}分遅れ】` : '';
+    const delayNoteEn = delay > 0 ? ` [Delayed ${delay}min]` : '';
 
     // 1. 電車接近案内（発車3分前〜0分）: 一番下段を接近案内に変更
     if (diffMin <= 3 && diffMin > 0) {
-      const jaMsg = `【まもなく ${platform}番線に 電車がまいります】${timeStr}発 ${typeName} ${dest} ゆき (${cars}両編成) です。黄色い点字ブロックの内側までお下がりください。`;
-      const enMsg = `[Train Approaching] The ${timeStr} ${typeNameEn} for ${destEn} (${cars} cars) will arrive shortly on Track ${platform}. Please wait behind the yellow line.`;
+      const jaMsg = `【まもなく ${platform}番線に 電車がまいります】${delayNoteJa}${timeStr}発 ${typeName} ${dest} ゆき (${cars}両編成) です。黄色い点字ブロックの内側までお下がりください。`;
+      const enMsg = `[Train Approaching]${delayNoteEn} The ${timeStr} ${typeNameEn} for ${destEn} (${cars} cars) will arrive shortly on Track ${platform}. Please wait behind the yellow line.`;
       const full = `${jaMsg} ◆ ${enMsg}`;
 
       return {
         state: 'approaching',
-        badgeJa: 'まもなく到着',
+        badgeJa: delay > 0 ? `接近中(${delay}分遅れ)` : 'まもなく到着',
         badgeEn: 'APPROACHING',
         textJa: jaMsg,
         textEn: enMsg,
@@ -73,8 +80,8 @@ export function getBottomNoticeInfo(
 
     // 2. 乗車中案内（発車0分〜2分後）: 一番下段を乗車中案内に変更
     if (diffMin <= 0 && diffMin >= -2) {
-      const jaMsg = `【ただいま ${platform}番線の電車は ご乗車になれます】${timeStr}発 ${typeName} ${dest} ゆき (${cars}両編成) です。発車までしばらくお待ちください。ご乗車の方はお近くの扉からご乗車ください。`;
-      const enMsg = `[Now Boarding] The ${timeStr} ${typeNameEn} for ${destEn} on Track ${platform} is now boarding. Please board now.`;
+      const jaMsg = `【ただいま ${platform}番線の電車は ご乗車になれます】${delayNoteJa}${timeStr}発 ${typeName} ${dest} ゆき (${cars}両編成) です。発車までしばらくお待ちください。ご乗車の方はお近くの扉からご乗車ください。`;
+      const enMsg = `[Now Boarding]${delayNoteEn} The ${timeStr} ${typeNameEn} for ${destEn} on Track ${platform} is now boarding. Please board now.`;
       const full = `${jaMsg} ◆ ${enMsg}`;
 
       return {

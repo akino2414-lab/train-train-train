@@ -394,11 +394,16 @@ export const MeitetsuPlatformLEDDisplay: React.FC<MeitetsuPlatformLEDDisplayProp
                     </div>
                   </div>
 
-                  {/* 4. 時刻表示部：アンバーLEDデジタル数字 */}
-                  <div className="col-span-2 text-right">
-                    <span className="text-[#ffaa00] font-extrabold text-sm sm:text-lg tracking-tight font-mono drop-shadow-[0_0_6px_rgba(255,170,0,0.8)]">
+                  {/* 4. 時刻表示部：アンバーLEDデジタル数字 ＆ 赤色LED遅延表示 */}
+                  <div className="col-span-2 text-right flex flex-col items-end justify-center">
+                    <span className="text-[#ffaa00] font-extrabold text-sm sm:text-lg tracking-tight font-mono drop-shadow-[0_0_6px_rgba(255,170,0,0.8)] leading-tight">
                       {train.scheduledTime}
                     </span>
+                    {train.delayMinutes > 0 && (
+                      <span className="text-red-500 font-bold text-[9px] sm:text-[10px] leading-none animate-pulse drop-shadow-[0_0_6px_rgba(239,68,68,0.9)]">
+                        遅れ{train.delayMinutes}分
+                      </span>
+                    )}
                   </div>
 
                   {/* 5. 両数表示部 */}

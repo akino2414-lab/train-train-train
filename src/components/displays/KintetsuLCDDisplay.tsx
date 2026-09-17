@@ -192,7 +192,7 @@ export const KintetsuLCDDisplay: React.FC<KintetsuLCDDisplayProps> = ({
                     : 'hover:bg-white/5'
                 }`}
               >
-                {/* 1. 発車時刻 (写真そのままの白いクリアな大文字) ＆ 接近・乗車中バッジ */}
+                {/* 1. 発車時刻 (写真そのままの白いクリアな大文字) ＆ 接近・乗車中・遅れバッジ */}
                 <div className="col-span-3 flex flex-col justify-center">
                   <div className="font-mono font-bold text-3xl sm:text-4xl text-white tracking-tighter drop-shadow flex items-center space-x-1.5">
                     <span
@@ -201,6 +201,8 @@ export const KintetsuLCDDisplay: React.FC<KintetsuLCDDisplayProps> = ({
                           ? 'text-amber-300 animate-pulse'
                           : isBoarding
                           ? 'text-emerald-300 animate-pulse'
+                          : train.delayMinutes > 0
+                          ? 'text-rose-300'
                           : ''
                       }
                     >
@@ -217,6 +219,16 @@ export const KintetsuLCDDisplay: React.FC<KintetsuLCDDisplayProps> = ({
                       🎵
                     </button>
                   </div>
+
+                  {/* 遅れバッジ */}
+                  {train.delayMinutes > 0 && (
+                    <div className="mt-1">
+                      <span className="inline-flex items-center bg-red-600 border border-red-300 text-white text-[10px] sm:text-xs font-black px-2 py-0.5 rounded animate-pulse shadow">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white mr-1 animate-ping" />
+                        <span>約{train.delayMinutes}分遅れ</span>
+                      </span>
+                    </div>
+                  )}
 
                   {/* 接近・乗車中バッジ */}
                   {isApproaching && (

@@ -299,8 +299,8 @@ export default function App() {
     }
   };
 
-  // 遅延トグル
-  const handleToggleDelay = (direction: DirectionType, trainIndex: number = 0) => {
+  // 遅延トグル（簡易）
+  const handleToggleDelay = (direction: DirectionType = currentDirection, trainIndex: number = 0) => {
     const setter = direction === 'down' ? setDownTrains : setUpTrains;
     setter((prev) => {
       return prev.map((t, idx) => {
@@ -314,6 +314,56 @@ export default function App() {
         }
         return t;
       });
+    });
+  };
+
+  // 遅延時間プログラム（分数指定・先頭または全列車）
+  const handleProgramDelay = (minutes: number, target: 'first' | 'all' = 'first') => {
+    const setter = currentDirection === 'down' ? setDownTrains : setUpTrains;
+    setter((prev) => {
+      return prev.map((t, idx) => {
+        if (target === 'all' || idx === 0) {
+          return {
+            ...t,
+            delayMinutes: minutes,
+            status: minutes > 0 ? 'delayed' : 'on_time',
+          };
+        }
+        return t;
+      });
+    });
+
+    setFeedbackToast({
+      message:
+        minutes === 0
+          ? `【遅れ解消】${currentDirection === 'down' ? '下り' : '上り'}${target === 'all' ? '全列車' : '先頭列車'}を定刻（遅延0分）に復旧しました`
+          : `【遅延プログラム】${currentDirection === 'down' ? '下り' : '上り'}${target === 'all' ? '全列車' : '先頭列車'}に 約${minutes}分 の遅延を設定しました`,
+      type: minutes === 0 ? 'success' : 'info',
+    });
+  };
+
+  // 個別列車の遅延時間更新
+  const handleSetTrainDelay = (trainId: string, minutes: number) => {
+    const updateInList = (list: TrainService[]) =>
+      list.map((t) =>
+        t.id === trainId
+          ? {
+              ...t,
+              delayMinutes: minutes,
+              status: (minutes > 0 ? 'delayed' : 'on_time') as any,
+            }
+          : t
+      );
+
+    setDownTrains((prev) => updateInList(prev));
+    setUpTrains((prev) => updateInList(prev));
+
+    setFeedbackToast({
+      message:
+        minutes === 0
+          ? '対象列車を定刻（遅れ0分）に戻しました'
+          : `対象列車の遅れを 約${minutes}分 に設定しました`,
+      type: minutes === 0 ? 'success' : 'info',
     });
   };
 
@@ -1007,6 +1057,7 @@ export default function App() {
             onTriggerApproach={handleTriggerApproach}
             onTriggerDeparture={handleTriggerDeparture}
             onToggleDelay={handleToggleDelay}
+            onProgramDelay={handleProgramDelay}
             onResetSchedule={handleResetSchedule}
             onOpenAddTrain={handleOpenAddTrain}
           />
@@ -1027,6 +1078,7 @@ export default function App() {
             onAddTrain={handleOpenAddTrain}
             onEditTrain={handleRowClick}
             onDeleteTrain={handleDeleteTrain}
+            onUpdateTrainDelay={handleSetTrainDelay}
             onMoveTrain={(dir, idx, d) => {
               const setter = dir === 'down' ? setDownTrains : setUpTrains;
               setter((prev) => {

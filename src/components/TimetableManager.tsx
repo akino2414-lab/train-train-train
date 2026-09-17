@@ -25,6 +25,7 @@ interface TimetableManagerProps {
   onMoveTrain: (dir: DirectionType, index: number, direction: 'up' | 'down') => void;
   onPromoteToTop: (dir: DirectionType, index: number) => void;
   onSortByTime: (dir: DirectionType) => void;
+  onUpdateTrainDelay?: (trainId: string, minutes: number) => void;
 }
 
 export const TimetableManager: React.FC<TimetableManagerProps> = ({
@@ -38,6 +39,7 @@ export const TimetableManager: React.FC<TimetableManagerProps> = ({
   onMoveTrain,
   onPromoteToTop,
   onSortByTime,
+  onUpdateTrainDelay,
 }) => {
   const activeTrains = currentDirection === 'down' ? downTrains : upTrains;
 
@@ -196,16 +198,31 @@ export const TimetableManager: React.FC<TimetableManagerProps> = ({
                     </span>
                   )}
 
-                  {/* Time */}
-                  <div className="flex items-center space-x-1 font-mono">
+                  {/* Time & Delay */}
+                  <div className="flex items-center space-x-1.5 font-mono">
                     <Clock className="w-3.5 h-3.5 text-zinc-500" />
                     <span className="text-base font-bold text-white tracking-tight">
                       {train.scheduledTime}
                     </span>
-                    {train.delayMinutes > 0 && (
-                      <span className="text-[10px] font-bold text-rose-400 bg-rose-950/80 px-1 rounded border border-rose-800 animate-pulse">
-                        +{train.delayMinutes}分遅れ
-                      </span>
+                    {train.delayMinutes > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => onUpdateTrainDelay && onUpdateTrainDelay(train.id, 0)}
+                        className="text-[10px] font-bold text-rose-300 bg-rose-950/90 hover:bg-rose-900 px-1.5 py-0.5 rounded border border-rose-600 animate-pulse transition flex items-center gap-0.5"
+                        title="クリックで定刻（0分）に戻す"
+                      >
+                        <span>+{train.delayMinutes}分遅れ</span>
+                        <span className="text-[9px] opacity-70">✕</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onUpdateTrainDelay && onUpdateTrainDelay(train.id, 5)}
+                        className="text-[10px] font-medium text-zinc-400 hover:text-rose-300 bg-zinc-900 hover:bg-rose-950/50 px-1.5 py-0.5 rounded border border-zinc-700 hover:border-rose-700 transition"
+                        title="クリックで+5分遅延を設定"
+                      >
+                        +遅延
+                      </button>
                     )}
                     {train.status === 'approaching' && (
                       <span className="text-[10px] font-bold text-amber-300 bg-amber-950/80 px-1.5 rounded border border-amber-700 animate-pulse">
@@ -243,8 +260,24 @@ export const TimetableManager: React.FC<TimetableManagerProps> = ({
                   </div>
                 </div>
 
-                {/* Right controls: Promote, Move, Edit, Delete */}
+                {/* Right controls: Delay, Promote, Move, Edit, Delete */}
                 <div className="flex items-center space-x-1.5 justify-end">
+                  {/* Quick delay button */}
+                  {onUpdateTrainDelay && (
+                    <button
+                      type="button"
+                      onClick={() => onUpdateTrainDelay(train.id, train.delayMinutes > 0 ? 0 : 10)}
+                      className={`px-2 py-1 text-[11px] font-bold rounded border transition ${
+                        train.delayMinutes > 0
+                          ? 'bg-rose-950/60 hover:bg-rose-900 text-rose-300 border-rose-700'
+                          : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border-zinc-700'
+                      }`}
+                      title={train.delayMinutes > 0 ? '定刻に戻す' : '+10分遅延を設定'}
+                    >
+                      {train.delayMinutes > 0 ? '定刻復旧' : '+10分'}
+                    </button>
+                  )}
+
                   {/* Quick promote to top (1段目に繰り上げ) */}
                   {idx !== 0 && (
                     <button
