@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-led {
+    font-family: 'DotGothic16', 'Noto Sans JP', monospace;
+  }
+  .font-mono-display {
+    font-family: 'Share Tech Mono', 'Chakra Petch', monospace;
+  }
+}
+
+/* LED Matrix Glow Effects */
+.led-text-amber {
+  color: #ffaa00;
+  text-shadow: 0 0 1px #ffaa00, 0 0 6px rgba(255, 170, 0, 0.45);
+}
+
+.led-text-green {
+  color: #38e068;
+  text-shadow: 0 0 1px #38e068, 0 0 6px rgba(56, 224, 104, 0.45);
+}
+
+.led-text-red {
+  color: #ff3b3b;
+  text-shadow: 0 0 1px #ff3b3b, 0 0 6px rgba(255, 59, 59, 0.45);
+}
+
+.led-text-orange {
+  color: #ff7700;
+  text-shadow: 0 0 1px #ff7700, 0 0 6px rgba(255, 119, 0, 0.45);
+}
+
+.led-text-white {
+  color: #f1f5f9;
+  text-shadow: 0 0 1px #ffffff, 0 0 6px rgba(255, 255, 255, 0.35);
+}
+
+.led-text-blue {
+  color: #38bdf8;
+  text-shadow: 0 0 1px #38bdf8, 0 0 6px rgba(56, 189, 248, 0.45);
+}
+
+/* Authentic LED Dot Matrix Background Grid */
+.led-matrix-bg {
+  background-color: #0c0d10;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 4px 4px;
+}
+
+.led-housing {
+  background: linear-gradient(180deg, #24272c 0%, #17191d 6%, #0d0f12 94%, #1e2025 100%);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.8),
+    0 10px 30px -5px rgba(0, 0, 0, 0.8),
+    0 0 0 1px #111317;
+}
+
+/* Meitetsu Signature Blue & Metal Bezel */
+.meitetsu-housing {
+  background: linear-gradient(180deg, #163d7d 0%, #0e2b5c 5%, #081a38 100%);
+  border: 4px solid #142f5e;
+  box-shadow: 
+    0 20px 40px -10px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.8);
+}
+
+.meitetsu-sign-panel {
+  background: linear-gradient(180deg, #1b4b98 0%, #123773 100%);
+  border-bottom: 3px solid #0a2046;
+}
+
+.meitetsu-header-bar {
+  background: linear-gradient(180deg, #1e2e4a 0%, #152238 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 2px solid #080f1b;
+}
+
+.led-slot-divider {
+  border-bottom: 2px solid #000000;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.lcd-housing {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 30px -5px rgba(0, 0, 0, 0.8),
+    0 0 0 1px #334155;
+}
+
+/* Flashing Blinker for Approaching / Boarding Trains */
+@keyframes led-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+
+.animate-led-blink {
+  animation: led-blink 1s cubic-bezier(1, 0, 0, 1) infinite;
+}
+
+/* Railway LCD Train Approaching: Rapid alternating blinker */
+@keyframes train-approach-flash {
+  0%, 49% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
+  }
+  50%, 100% {
+    opacity: 0.15;
+    transform: scale(0.98);
+    box-shadow: none;
+  }
+}
+
+.animate-approach-flash {
+  animation: train-approach-flash 0.85s steps(2, start) infinite;
+}
+
+/* Railway LCD Train Boarding: Vibrant Green/Cyan flashing indicator */
+@keyframes train-boarding-flash {
+  0%, 49% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.85);
+  }
+  50%, 100% {
+    opacity: 0.15;
+    transform: scale(0.98);
+    box-shadow: none;
+  }
+}
+
+.animate-boarding-flash {
+  animation: train-boarding-flash 0.85s steps(2, start) infinite;
+}
+
+/* Row-level subtle approach glow pulse */
+@keyframes row-approach-pulse {
+  0%, 100% {
+    background-color: rgba(245, 158, 11, 0.08);
+  }
+  50% {
+    background-color: rgba(245, 158, 11, 0.22);
+  }
+}
+
+.animate-row-approach {
+  animation: row-approach-pulse 1.4s ease-in-out infinite;
+}
+
+/* Train Delay Warning: Urgent orange-red attention flash */
+@keyframes train-delay-flash {
+  0%, 49% {
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(225, 29, 72, 0.85);
+  }
+  50%, 100% {
+    opacity: 0.35;
+    box-shadow: none;
+  }
+}
+
+.animate-delay-flash {
+  animation: train-delay-flash 1.2s steps(2, start) infinite;
+}
+
+/* Yellow Lamp dot blinking */
+@keyframes yellow-dot-blink {
+  0%, 49% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px #fbbf24);
+  }
+  50%, 100% {
+    opacity: 0.1;
+  }
+}
+
+.animate-yellow-dot {
+  animation: yellow-dot-blink 0.7s steps(2, start) infinite;
+}
+
+/* Smooth continuous ticker marquee animation */
+@keyframes ticker-continuous {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-continuous {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: ticker-continuous var(--ticker-duration, 110s) linear infinite;
+}
+
+.animate-ticker-continuous:hover {
+  animation-play-state: paused;
+}
+
+@keyframes ticker-slide {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee var(--marquee-duration, 70s) linear infinite;
+}
+
+.animate-marquee-smooth {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee var(--marquee-duration, 80s) linear infinite;
+}
+
+.animate-marquee-calm {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee var(--marquee-duration, 90s) linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-smooth:hover,
+.animate-marquee-calm:hover {
+  animation-play-state: paused;
+}
+
+.ticker-content {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+  animation: ticker-slide var(--marquee-duration, 75s) linear infinite;
+}
+
+.ticker-content:hover {
+  animation-play-state: paused;
+}
+

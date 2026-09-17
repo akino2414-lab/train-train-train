@@ -1,0 +1,8 @@
+{
+  "name": "Remix 鉄道駅電光掲示板",
+  "description": "三河花園駅の旅客案内発車標シミュレーター。2階（1〜8番線）・4階（9〜16番線）、全席指定・一般連結ルール、JR・近鉄直通運用、接近放送・発車ベル音響に対応。",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
